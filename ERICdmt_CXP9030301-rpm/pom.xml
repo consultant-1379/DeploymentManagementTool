@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>DeploymentManagementTool</artifactId>
+		<groupId>com.ericsson.nms.litp</groupId>
+		<version>2.4.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>ERICdmt_CXP9030301</artifactId>
+	<name>[${project.parent.artifactId}] RPM module</name>
+	<packaging>${rpm.packaging}</packaging>
+	<properties>
+		<com.ericsson.oss.rpm.architecture>noarch</com.ericsson.oss.rpm.architecture>
+		<!-- Install path = /${rpm-root}/${comp-name}/${install-path} -->
+		<rpm-root>opt</rpm-root>
+		<comp-name>ericsson</comp-name>
+		<install-path>${project.groupId}</install-path>
+        <publish_artifact>true</publish_artifact>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.5</version>
+				<executions>
+					<execution>
+						<id>unpack_tools</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>com.ericsson.oss.clientcommon</groupId>
+									<artifactId>container</artifactId>
+									<version>LATEST</version>
+									<type>tar.gz</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${project.build.directory}/dependencies/dmtui</outputDirectory>
+								</artifactItem>
+								<artifactItem>
+									<groupId>com.ericsson.oss.uisdk.clientsdk</groupId>
+									<artifactId>jscore</artifactId>
+									<classifier>prod</classifier>
+									<version>LATEST</version>
+									<type>tar.gz</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${project.build.directory}/dependencies/dmtui</outputDirectory>
+								</artifactItem>
+								<artifactItem>
+									<groupId>com.ericsson.oss.uisdk.clientsdk</groupId>
+									<artifactId>widgets</artifactId>
+									<version>RELEASE</version>
+									<classifier>prod</classifier>
+									<type>tar.gz</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${project.build.directory}/dependencies/dmtui</outputDirectory>
+								</artifactItem>
+								 <artifactItem>
+									<groupId>com.ericsson.oss</groupId>
+									<artifactId>branding</artifactId>
+									<version>RELEASE</version>
+									<classifier>prod</classifier>
+									<type>tar.gz</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${project.build.directory}/dependencies/dmtui</outputDirectory>
+								</artifactItem>
+								<artifactItem>
+									<groupId>com.ericsson.oss.uisdk</groupId>
+									<artifactId>helpsdk</artifactId>
+									<version>LATEST</version>
+									<type>tar.gz</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${project.build.directory}/dependencies/dmtui</outputDirectory>
+								</artifactItem>
+								<artifactItem>
+									<groupId>com.ericsson.nms.litp.dmt.ui</groupId>
+									<artifactId>dmtUI</artifactId>
+									<version>${project.version}</version>
+									<type>tar.gz</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>${project.build.directory}/dependencies/dmtui</outputDirectory>
+								</artifactItem>
+								<artifactItem>
+									<groupId>com.ericsson.oss.itpf.eap</groupId>
+									<artifactId>RedHat_EAP-tar</artifactId>
+									<version>1.9.48</version>
+									<type>tar.gz</type>
+									<overWrite>true</overWrite>
+									<outputDirectory>${project.build.directory}/dependencies/jboss</outputDirectory>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+					<execution>
+						<id>copy</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>copy</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>com.ericsson.nms.litp.dmt.service</groupId>
+									<artifactId>DeploymentManagementService-war</artifactId>
+									<version>${project.version}</version>
+									<type>war</type>
+									<overWrite>false</overWrite>
+									<outputDirectory>${project.build.directory}/dependencies/dmtservice</outputDirectory>
+									<destFileName>DeploymentManagementService-war.war</destFileName>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+			<artifactId>maven-antrun-plugin</artifactId>
+			<version>1.3</version>
+			<executions>
+				<execution>
+					<phase>prepare-package</phase>
+					<configuration>
+						<tasks>
+							<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="maven.plugin.classpath" />
+							<delete file="${project.build.directory}/dependencies/jboss/bin/standalone.conf" />
+							<copy file="src/main/conf/jboss/standalone.conf" tofile="${project.build.directory}/dependencies/jboss/bin/standalone.conf" />
+						</tasks>
+					</configuration>
+					<goals>
+						<goal>run</goal>
+					</goals>
+				</execution>
+			</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>rpm-maven-plugin</artifactId>
+				<configuration>
+					<group>Applications/System</group>
+					<mappings combine.self="override">
+						<mapping>
+							<directory>/${rpm-root}/${comp-name}</directory>
+							<filemode>775</filemode>
+							<username>root</username>
+							<groupname>root</groupname>
+						</mapping>
+						
+
+						<!-- The UI to be deployed into apache -->
+						<mapping>
+							<directory>/var/www/html/dmt</directory>
+							<directoryIncluded>false</directoryIncluded>
+							<filemode>644</filemode>
+							<sources>
+								<source>
+									<location>target/dependencies/dmtui</location>
+								</source>
+							</sources>
+						</mapping>
+
+						<!-- eap containing service framework configured to be located into dmt_jboss -->
+						<mapping>
+							<directory>/opt/ericsson/dmt_jboss</directory>
+							<filemode>775</filemode>
+							<username>litp_jboss</username>
+							<groupname>litp_jboss</groupname>
+							<recurseDirectories>true</recurseDirectories>
+							<sources>
+								<source>
+									<location>target/dependencies/jboss</location>
+								</source>
+							</sources>
+						</mapping>
+						
+					    <!-- The dmt service war to be placed within the jboss deployments folder -->
+						<mapping>
+							<directory>/${rpm-root}/${comp-name}/dmt_jboss/standalone/deployments</directory>
+							<sources>
+								<source>
+									<location>target/dependencies/dmtservice</location>
+								</source>
+							</sources>
+						</mapping>
+
+						<!--The standalone and the dmtservice script files to be located into the jboss script folder -->
+						<mapping>
+							<directory>/opt/ericsson/dmt_jboss/script</directory>
+							<filemode>775</filemode>
+							<username>litp_jboss</username>
+							<groupname>litp_jboss</groupname>
+							<directoryIncluded>false</directoryIncluded>
+							<sources>
+								<source>
+									<location>src/main/conf/jboss/dmt_service</location>
+								</source>
+								<!-- <source>
+									<location>src/main/conf/jboss/standalone.conf</location>
+								</source> -->
+							</sources>
+						</mapping>
+
+						<!-- standalone-full-ha-dmt.xml to be located into the /standalone/configuration -->
+						<mapping>
+							<directory>/${rpm-root}/${comp-name}/dmt_jboss/standalone/configuration</directory>
+							<filemode>775</filemode>
+							<username>litp_jboss</username>
+							<groupname>litp_jboss</groupname>
+							<sources>
+								<source>
+									<location>src/main/conf/jboss/standalone-full-dmt.xml</location>
+								</source>
+							</sources>
+						</mapping>
+
+
+						<!-- the DMT ui apache cofiguration to be located into the /etc/httpd/conf.d -->
+						<mapping>
+							<directory>/etc/httpd/conf.d</directory>
+							<filemode>775</filemode>
+							<username>apache</username>
+							<groupname>apache</groupname>
+							<directoryIncluded>false</directoryIncluded>
+							<sources>
+								<source>
+									<location>src/main/conf/apache</location>
+								</source>
+							</sources>
+						</mapping>
+					</mappings>
+
+
+					<postinstallScriptlet>
+						<scriptFile>src/main/conf/jboss/dmt_postinstall.sh</scriptFile>
+					</postinstallScriptlet>
+
+					<preremoveScriptlet>
+						<scriptFile>src/main/conf/jboss/dmt_preuninstall.sh</scriptFile>
+					</preremoveScriptlet>
+
+					<postremoveScriptlet>
+						<scriptFile>src/main/conf/jboss/dmt_postuninstall.sh</scriptFile>
+					</postremoveScriptlet>
+					
+					<preinstallScriptlet>
+                        <scriptFile>src/main/conf/jboss/dmt_preinstall.sh</scriptFile>
+                    </preinstallScriptlet>
+					
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

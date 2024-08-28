@@ -1,0 +1,8 @@
+inputText,expectedChildren
+/,/bootmgr/cfgmgr/definition/depmgr/inventory/pluginmgr
+/b,/bootmgr
+/c,/cfgmgr
+/de,/definition/depmgr
+/i,/inventory
+/plu,/pluginmgr
+/defi,/definition

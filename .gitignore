@@ -1,0 +1,13 @@
+/.settings
+/.project
+/.classpath
+/target
+target
+.pmd
+bin/
+tmp/
+test-output/
+curl.exe
+*.dll
+.idea
+*.iml

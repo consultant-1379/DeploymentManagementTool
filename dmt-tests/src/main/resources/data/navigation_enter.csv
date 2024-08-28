@@ -1,0 +1,10 @@
+initialPath,expected
+/definition/,definition
+/definition/cobbler/,cobbler
+/definition/cobbler/ksmanager/,ksmanager
+/inventory/deployment1/ms1/,ms1
+/inventory/deployment1/ms1/ms_node/,ms_node
+/inventory/deployment1/ms1/ms_node/firewallsmain/,firewallsmain
+/inventory/deployment1/ms1/ms_node/firewallsmain/config/,config
+/bootmgr/test1/,bootmgr
+/bootmgr/test2/,bootmgr

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.ericsson.nms</groupId>
+        <artifactId>integration</artifactId>
+        <version>15.2.0.30</version>
+    </parent>
+    <groupId>com.ericsson.nms.litp</groupId>
+    <artifactId>DeploymentManagementTool</artifactId>
+    <packaging>pom</packaging>
+    <version>2.4.1-SNAPSHOT</version>
+    <name>Deployment Management Tool Parent</name>
+
+    <modules>
+        <module>DeploymentManagementService</module>
+        <module>DeploymentManagementToolUI</module>
+        <module>ERICdmt_CXP9030301-rpm</module>
+        <!-- <module>dmt-tests</module> -->
+    </modules>	
+
+
+    
+    <dependencyManagement>
+    
+		<dependencies>
+			<dependency>
+				<groupId>com.ericsson.oss.itpf.sdk</groupId>
+				<artifactId>ServiceFrameworkBOM</artifactId>
+				<!-- change version to the latest released Service Framework version 
+					required -->
+				<version>1.10.6</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+</project>

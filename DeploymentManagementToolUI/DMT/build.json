@@ -1,0 +1,224 @@
+{
+    "properties": {
+        "buildDir": "target",
+        "optimizeDir": "$(buildDir)/optimized",
+        "packageDir": "$(buildDir)/package",
+        "sdkTools": "$(pathToSdk)/tools",
+        "testRunner": "$(sdkTools)/test/test-runner.js",
+        "node": "node",
+        "npm": {
+            "?os.platform=windows": "npm.cmd",
+            "?os.platform=unix": "npm"
+        },
+        "jscoverage": {
+            "?os.platform=windows": "$(sdkTools)/jscoverage/jscoverage.exe",
+            "?os.platform=unix": "$(sdkTools)/jscoverage/jscoverage"
+        },
+        "phantomjs": {
+            "?os.platform=windows": "$(sdkTools)/phantomjs/bin/phantomjs.exe",
+            "?os.platform=unix": "$(sdkTools)/phantomjs/bin/phantomjs"
+        },
+        "uglifyjs": "$(node) $(pathToSdk)/node_modules/uglify-js/bin/uglifyjs",
+        "jshint": "$(node) $(pathToSdk)/node_modules/jshint/bin/jshint",
+        "cssverify": "$(node) $(sdkTools)/cssverify/cssverify.js",
+        "helpverify": "java -jar $(sdkTools)/helptools/helpverify.jar",
+        "package": "dmt",
+        "name": "DMT",
+        "title": "DMT",
+        "version": "0.0.1-SNAPSHOT"
+    },
+    "defaultPhase": "package",
+    "phases": {
+        "clean": {
+            "delete": {
+                "target": "$(buildDir)"
+            }
+        },
+
+        "install-dependencies": {
+            "execute": {
+                "command": "$(npm)",
+                "attributes": [
+                    "install",
+                    "--force",
+                    "--proxy",
+                    "null",
+                    "--tmp",
+                    "tmp",
+                    "--cache",
+                    "tmp/.npm"
+                ]
+            }
+        },
+
+        "code-verify": {
+			"jshint": {}
+		},
+
+        "css-verify": {
+            "execute": {
+                "command": "$(cssverify)",
+                "attributes": [
+                    "--name",
+                    "$(name)",
+                    "src"
+                ]
+            }
+        },
+
+        "help-verify": {
+            "execute": {
+                "command": "$(helpverify)",
+                "attributes": [
+                    "help"
+                ]
+            }
+        },
+
+        "analyze": {
+            "depends": [ "code-verify", "css-verify", "help-verify" ]
+        },
+
+        "copy-test-files": {
+            "depends": ["install-dependencies"],
+            "copy": {
+                "from": [
+                    "test",
+                    "node_modules",
+                    "resources",
+                    "require.config.js",
+                    "index.html"
+                ],
+                "to": "$(buildDir)/"
+            }
+        },
+
+        "copy-tools": {
+            "copy": {
+                "from": "$(sdkTools)/*",
+                "to": "$(buildDir)/_tools/"
+            }
+        },
+
+        "jscoverage": {
+            "execute": {
+                "command": "$(jscoverage)",
+                "attributes": [
+                    "src",
+                    "$(buildDir)/src",
+                    "--exclude",
+                    "dmt/ext/D3/d3.js"
+                ]
+            }
+        },
+
+        "prepare-tests": {
+            "depends": [
+                "copy-test-files",
+                "copy-tools",
+                "jscoverage"
+            ]
+        },
+
+        "test-unit": {
+            "depends": [ "prepare-tests" ],
+            "execute": {
+                "command": "$(phantomjs)",
+                "attributes": [
+                    "$(testRunner)",
+                    "--root $(buildDir)",
+                    "--reports $(buildDir)/reports/unit",
+                    "--type unit",
+                    "--title \"$(title)\""
+                ]
+            }
+        },
+
+        "test-bit": {
+            "depends": [ "prepare-tests" ],
+            "execute": {
+                "command": "$(phantomjs)",
+                "attributes": [
+                    "$(testRunner)",
+                    "--root $(buildDir)",
+                    "--reports $(buildDir)/reports/bit",
+                    "--type bit",
+                    "--title \"$(title)\""
+                ]
+            }
+        },
+
+        "test": {
+            "depends": [ "test-unit", "test-bit" ]
+        },
+
+        "optimize": {
+            "rjs": {
+                "config": {
+                    "baseUrl": "src",
+                    "dir": "$(optimizeDir)",
+					"packageDir": "$(packageDir)"
+                }
+            }
+        },
+
+        "copy-resource": {
+            "copy": {
+                "from": [
+                    "resources/$(package)/*"
+                ],
+                "to": "$(packageDir)/$(package)/resources/$(package)/"
+            }
+        },
+
+        "copy-help": {
+            "copy": {
+                "from": [
+                    "help/*"
+                ],
+                "to": "$(packageDir)/help/apps/$(package)/"
+            }
+        },
+
+        "set-help-app-info": {
+            "replace": {
+                "target": "$(packageDir)/help/apps/$(package)/appInfo.xml",
+                "replacements": [
+                    {
+                        "token": "{{version}}",
+                        "value": "$(version)"
+                    }
+                ]
+            }
+        },
+
+        "compile": {
+            "depends": [
+                "clean",
+                "analyze",
+                "test",
+                "optimize",
+                "copy-resource",
+                "copy-help",
+                "set-help-app-info"
+            ]
+        },
+
+
+		"copy-app-config": {
+			"prepare-app-config": {
+                "from": "app.config.js",
+                "to": "$(packageDir)/$(package)/config.js"
+            }
+		},
+
+        "package": {
+            "depends": ["compile", "copy-app-config"],
+            "compress": {
+                "root": "$(packageDir)",
+                "files": ["$(package)", "help"],
+				"target": "$(buildDir)/$(package)-$(version).tar.gz"
+            }
+        }
+    }
+}

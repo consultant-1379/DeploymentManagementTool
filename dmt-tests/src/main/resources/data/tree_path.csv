@@ -1,0 +1,3 @@
+initialPath,expectedChildren
+/bootmgr/,distro1
+/bootmgr/distro1/,profile1

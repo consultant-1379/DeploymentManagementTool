@@ -1,0 +1,2 @@
+modelURL,expectedResponseCode,path,expectedObject
+DeploymentManagementService-war/dmtservice/model,200,data.children.bootmgr.acknowledgement,{}

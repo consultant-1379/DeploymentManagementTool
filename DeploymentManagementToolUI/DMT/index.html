@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DMT</title>
+    <link href="node_modules/branding/css/assets.css" rel="stylesheet" type="text/css"/>
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script type="text/javascript" src="node_modules/jscore/require/require.js"></script>
+    <script type="text/javascript" src="require.config_old.js"></script>
+    <script>
+		var dmt;
+        require([
+            'dmt/DMT'
+        ], function (DMT) {
+            dmt = new DMT();
+            dmt.start(document.getElementById('container'));
+        });
+    </script>
+</head>
+<body>
+<div id="container"></div>
+</body>
+</html>

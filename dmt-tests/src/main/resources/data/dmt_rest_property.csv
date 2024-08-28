@@ -1,0 +1,4 @@
+propertyURL,expectedResponseCode,property,expectedValue
+DeploymentManagementService-war/dmtservice/properties(children.cfgmgr),200,status,Initial
+DeploymentManagementService-war/dmtservice/properties(children.depmgr),200,status,Initial
+DeploymentManagementService-war/dmtservice/properties(children.bootmgr),200,deletable,true
